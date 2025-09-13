@@ -15,19 +15,51 @@ from src.rag_chain import build_rag_chain
 from src.langgraph_engine import LangGraphEngine
 from pypdf.errors import EmptyFileError
 
+# --- Page setup ---
 st.set_page_config(page_title="AI Pipeline Demo", layout="wide")
+
+st.markdown(
+    """
+    <style>
+    .user-msg {
+        background-color: #DCF8C6;
+        padding: 10px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        max-width: 80%;
+        float: right;
+        clear: both;
+    }
+    .assistant-msg {
+        background-color: #F1F0F0;
+        padding: 10px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        max-width: 80%;
+        float: left;
+        clear: both;
+    }
+    .chat-box {
+        max-height: 500px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.title("AI Pipeline: Weather + PDF RAG Demo")
 
+# --- Initialize pipeline ---
 @st.cache_resource
 def init_pipeline():
-    # Load docs & build FAISS (or load if exists)
     embeddings = get_embeddings()
     persist_path = settings.FAISS_INDEX_PATH
-    # Try load if exists otherwise build from PDF
+
     if os.path.exists(persist_path):
         vectorstore = load_faiss(persist_path, embeddings)
     else:
-        # Handle missing/empty PDF gracefully
         try:
             docs = load_and_split_pdf(settings.PDF_PATH)
         except FileNotFoundError as e:
@@ -38,11 +70,10 @@ def init_pipeline():
             docs = []
 
         if not docs:
-            # Build an empty vectorstore to keep app usable (weather-only)
             vectorstore = None
         else:
             vectorstore = build_faiss_from_docs(docs, embeddings, persist_path=persist_path)
-    # LLM: default is ChatOpenAI or user-specified
+
     llm = get_llm()
     rag = build_rag_chain(llm, vectorstore)
     engine = LangGraphEngine(rag_chain=rag, llm=llm, openweather_api_key=settings.OPENWEATHER_API_KEY)
@@ -50,11 +81,33 @@ def init_pipeline():
 
 engine = init_pipeline()
 
+# --- Sidebar info ---
+with st.sidebar:
+    st.header("Settings")
+    st.write(f"**Active LLM Provider:** `{settings.LLM_PROVIDER.upper()}`")
+    if settings.LLM_PROVIDER.lower() == "gemini":
+        st.info("Using Google Gemini via API key")
+    elif settings.LLM_PROVIDER.lower() == "openai":
+        st.info("Using OpenAI via API key")
+
+    st.write("---")
+    st.caption("Ask me about the **PDF** or get the **current weather** for a city!")
+
+# --- Chat state ---
 if "history" not in st.session_state:
     st.session_state.history = []
 
-query = st.text_input("Ask a question about the PDF or weather (e.g., 'What's the weather in London?')", key="query")
-if st.button("Send"):
+# --- Chat input ---
+st.subheader("Chat with the Assistant")
+query = st.text_input("Type your question:", key="query")
+
+col1, col2 = st.columns([1, 5])
+with col1:
+    send = st.button("Send")
+with col2:
+    clear = st.button("Clear Chat")
+
+if send:
     if not query.strip():
         st.warning("Please enter a query.")
     else:
@@ -65,7 +118,15 @@ if st.button("Send"):
                 resp = f"Error: {e}"
         st.session_state.history.append((query, resp))
 
+if clear:
+    st.session_state.history = []
+
+# --- Chat history ---
+st.subheader("Conversation History")
+st.markdown('<div class="chat-box">', unsafe_allow_html=True)
+
 for q, a in st.session_state.history[::-1]:
-    st.markdown(f"**You:** {q}")
-    st.markdown(f"**Assistant:** {a}")
-    st.markdown("---")
+    st.markdown(f'<div class="user-msg">{q}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="assistant-msg">{a}</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
