@@ -1,15 +1,20 @@
 # core
 langchain>=0.0.200
+langchain-community>=0.0.200
 streamlit>=1.24.0
 pypdf>=3.0.0        # pdf loader fallback
 requests>=2.28.0
 python-dotenv>=1.0.0
 pydantic>=1.10.0
+pydantic-settings>=2.0.0
 pytest>=7.0.0
 
 # embeddings + FAISS
 sentence-transformers>=2.2.2
 faiss-cpu>=1.7.4   # if pip fails on mac/arm see note below
+
+# langgraph
+langgraph>=0.0.40
 
 # optional / later
 google-cloud-aiplatform>=1.30.0   # for Gemini (Vertex AI) integration (optional)

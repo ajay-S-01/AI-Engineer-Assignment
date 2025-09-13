@@ -1,5 +1,11 @@
 # src/app.py
 import streamlit as st
+import sys
+import os
+
+# Add the parent directory to Python path so we can import from src
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.config import settings
 from src.data_loader import load_and_split_pdf
 from src.embeddings import get_embeddings
@@ -7,7 +13,7 @@ from src.vectorstore import build_faiss_from_docs, load_faiss
 from src.llm_wrappers import get_llm
 from src.rag_chain import build_rag_chain
 from src.langgraph_engine import LangGraphEngine
-import os
+from pypdf.errors import EmptyFileError
 
 st.set_page_config(page_title="AI Pipeline Demo", layout="wide")
 st.title("AI Pipeline: Weather + PDF RAG Demo")
@@ -21,8 +27,21 @@ def init_pipeline():
     if os.path.exists(persist_path):
         vectorstore = load_faiss(persist_path, embeddings)
     else:
-        docs = load_and_split_pdf(settings.PDF_PATH)
-        vectorstore = build_faiss_from_docs(docs, embeddings, persist_path=persist_path)
+        # Handle missing/empty PDF gracefully
+        try:
+            docs = load_and_split_pdf(settings.PDF_PATH)
+        except FileNotFoundError as e:
+            st.error(f"PDF not found: {e}")
+            docs = []
+        except EmptyFileError as e:
+            st.error(f"PDF is empty or unreadable: {e}")
+            docs = []
+
+        if not docs:
+            # Build an empty vectorstore to keep app usable (weather-only)
+            vectorstore = None
+        else:
+            vectorstore = build_faiss_from_docs(docs, embeddings, persist_path=persist_path)
     # LLM: default is ChatOpenAI or user-specified
     llm = get_llm()
     rag = build_rag_chain(llm, vectorstore)

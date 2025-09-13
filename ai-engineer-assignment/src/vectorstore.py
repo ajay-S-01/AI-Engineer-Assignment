@@ -19,4 +19,5 @@ def load_faiss(persist_path: str, embeddings: Embeddings) -> FAISS:
     """
     Load a previously saved FAISS index.
     """
-    return FAISS.load_local(persist_path, embeddings)
+    # LangChain >=0.1 may require explicit allow_dangerous_deserialization
+    return FAISS.load_local(persist_path, embeddings, allow_dangerous_deserialization=True)

@@ -1,5 +1,5 @@
 # src/config.py
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     OPENWEATHER_API_KEY: str | None = None
@@ -12,7 +12,7 @@ class Settings(BaseSettings):
 
     # Gemini (API key)
     GEMINI_API_KEY: str | None = None
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-2.5-flash"
 
     # OpenAI
     OPENAI_API_KEY: str | None = None
