@@ -1,4 +1,3 @@
-# src/rag_chain.py
 from langchain.chains import RetrievalQA
 from langchain.schema import Document
 from langchain.embeddings.base import Embeddings

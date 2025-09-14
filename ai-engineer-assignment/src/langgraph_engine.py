@@ -1,9 +1,9 @@
-# src/langgraph_engine.py
 import re
 from typing import Any, Dict, TypedDict
 from langgraph.graph import StateGraph, END
 from src.weather import get_weather_for_city, summarize_weather_payload
 from src.rag_chain import build_rag_chain
+from langsmith import traceable
 
 # Weather keywords for classification
 WEATHER_KEYWORDS = {"weather", "temperature", "rain", "forecast", "sunny", "wind", "windy", "snow", "cloud"}
@@ -47,6 +47,7 @@ def decision_node(state: GraphState) -> GraphState:
         "city": extract_city_from_query(query) or "your location" if is_weather else ""
     }
 
+@traceable
 def weather_node(state: GraphState) -> GraphState:
     """Node that handles weather queries"""
     city = state["city"]

@@ -1,4 +1,3 @@
-# tests/test_weather.py
 import pytest
 from src import weather
 from types import SimpleNamespace

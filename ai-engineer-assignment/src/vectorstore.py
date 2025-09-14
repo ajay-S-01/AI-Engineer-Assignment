@@ -1,4 +1,3 @@
-# src/vectorstore.py
 from langchain.vectorstores import FAISS
 from langchain.schema import Document
 from langchain.embeddings.base import Embeddings

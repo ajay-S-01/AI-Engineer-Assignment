@@ -5,13 +5,14 @@ import tempfile
 import os
 from pathlib import Path
 from unittest.mock import Mock, MagicMock
+from typing import Optional
 
 # Add src to path for imports
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+# To this:
 from src.config import Settings
-
 
 @pytest.fixture
 def mock_settings():
@@ -26,16 +27,14 @@ def mock_settings():
         GEMINI_MODEL="gemini-2.5-flash",
         OPENAI_API_KEY="test_openai_key",
         OPENAI_MODEL="gpt-4o-mini",
-        LANGSMITH_API_KEY="test_langsmith_key"
+        LANGCHAIN_API_KEY="test_langchain_key"
     )
-
 
 @pytest.fixture
 def temp_dir():
     """Create a temporary directory for testing."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
-
 
 @pytest.fixture
 def mock_llm():
@@ -44,7 +43,6 @@ def mock_llm():
     mock_llm.return_value = "Mocked LLM response"
     return mock_llm
 
-
 @pytest.fixture
 def mock_rag_chain():
     """Mock RAG chain for testing."""
@@ -52,14 +50,12 @@ def mock_rag_chain():
     mock_chain.run.return_value = "Mocked RAG response"
     return mock_chain
 
-
 @pytest.fixture
 def mock_vectorstore():
     """Mock vectorstore for testing."""
     mock_vs = Mock()
     mock_vs.as_retriever.return_value = Mock()
     return mock_vs
-
 
 @pytest.fixture
 def sample_weather_data():
@@ -79,7 +75,6 @@ def sample_weather_data():
         "name": "London"
     }
 
-
 @pytest.fixture
 def sample_documents():
     """Sample documents for testing."""
@@ -94,7 +89,6 @@ def sample_documents():
             metadata={"source": "test.pdf", "page": 2}
         )
     ]
-
 
 # Pytest markers
 def pytest_configure(config):

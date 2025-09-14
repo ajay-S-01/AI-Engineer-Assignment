@@ -10,7 +10,7 @@ __version__ = "0.1.0"
 __author__ = "AI Engineer"
 __email__ = "ai.engineer@example.com"
 
-from .config import settings
+from .config import settings, Settings
 from .langgraph_engine import LangGraphEngine
 from .rag_chain import build_rag_chain
 from .weather import get_weather_for_city, summarize_weather_payload
@@ -20,6 +20,7 @@ from .llm_wrappers import get_llm
 
 __all__ = [
     "settings",
+    "Settings",
     "LangGraphEngine", 
     "build_rag_chain",
     "get_weather_for_city",

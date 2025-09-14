@@ -1,55 +1,46 @@
-#!/usr/bin/env python3
-"""
-Test script for the new LangGraph implementation
-This tests the logic without requiring LangGraph to be installed
-"""
-
+import pytest
 import sys
 import os
-sys.path.append('src')
 
-def test_decision_logic():
-    """Test the decision node logic"""
-    print("Testing decision logic...")
-    
-    # Test weather queries
-    weather_queries = [
-        "What's the weather in London?",
-        "How is the temperature today?",
-        "Will it rain tomorrow?",
-        "Is it sunny outside?"
+# Ensure src is on path
+sys.path.append("src")
+
+
+def test_weather_query_detection():
+    """Test detection of weather queries"""
+    from src.langgraph_engine import looks_like_weather_query, extract_city_from_query
+
+    queries = [
+        ("What's the weather in London?", True, "London"),
+        ("How is the temperature today?", True, None),
+        ("Will it rain tomorrow?", True, None),
+        ("Is it sunny outside?", True, None),
     ]
-    
-    # Test RAG queries  
-    rag_queries = [
+
+    for query, expected_weather, expected_city in queries:
+        assert looks_like_weather_query(query) == expected_weather
+        assert extract_city_from_query(query) == expected_city
+
+
+def test_rag_query_detection():
+    """Test detection of non-weather (RAG) queries"""
+    from src.langgraph_engine import looks_like_weather_query
+
+    queries = [
         "What is RAG?",
         "Explain the document content",
         "Summarize the PDF",
-        "What does the text say about AI?"
+        "What does the text say about AI?",
     ]
-    
-    from src.langgraph_engine import looks_like_weather_query, extract_city_from_query
-    
-    print("\nWeather Query Tests:")
-    for query in weather_queries:
-        is_weather = looks_like_weather_query(query)
-        city = extract_city_from_query(query)
-        print(f"  '{query}' -> Weather: {is_weather}, City: '{city}'")
-    
-    print("\nRAG Query Tests:")
-    for query in rag_queries:
-        is_weather = looks_like_weather_query(query)
-        print(f"  '{query}' -> Weather: {is_weather}")
-    
-    print("\n✅ Decision logic tests completed!")
+
+    for query in queries:
+        assert not looks_like_weather_query(query)
+
 
 def test_state_structure():
-    """Test the state structure"""
-    print("\nTesting state structure...")
-    
+    """Ensure GraphState structure matches expected keys"""
     from src.langgraph_engine import GraphState
-    
-    # Create a mock state
+
     mock_state: GraphState = {
         "query": "What's the weather in Paris?",
         "response": "",
@@ -58,24 +49,17 @@ def test_state_structure():
         "is_weather_query": False,
         "rag_chain": None,
         "llm": None,
-        "openweather_api_key": ""
+        "openweather_api_key": "",
     }
-    
-    print(f"Mock state created: {list(mock_state.keys())}")
-    print("✅ State structure test completed!")
 
-if __name__ == "__main__":
-    print("🧪 Testing LangGraph Implementation")
-    print("=" * 50)
-    
-    try:
-        test_decision_logic()
-        test_state_structure()
-        print("\n🎉 All tests passed!")
-        print("\nThe LangGraph implementation is ready to use once LangGraph is installed.")
-        print("Run: pip install langgraph>=0.0.40")
-        
-    except Exception as e:
-        print(f"\n❌ Test failed: {e}")
-        import traceback
-        traceback.print_exc()
+    expected_keys = {
+        "query",
+        "response",
+        "city",
+        "weather_data",
+        "is_weather_query",
+        "rag_chain",
+        "llm",
+        "openweather_api_key",
+    }
+    assert set(mock_state.keys()) == expected_keys

@@ -1,4 +1,3 @@
-# src/weather.py
 import requests
 from typing import Dict
 from src.config import settings

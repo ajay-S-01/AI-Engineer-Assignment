@@ -1,79 +1,105 @@
 # AI Engineer Assignment
 
-A comprehensive AI pipeline that combines weather information retrieval and RAG (Retrieval-Augmented Generation) capabilities using LangGraph for workflow orchestration.
+A comprehensive AI pipeline that combines weather information retrieval and RAG (Retrieval-Augmented Generation) capabilities using LangGraph for intelligent workflow orchestration.
 
-## Features
+## 🌟 Features
 
-- 🌤️ **Weather Integration**: Get real-time weather information for any city
-- 📚 **RAG Pipeline**: Ask questions about uploaded PDF documents
+- 🌤️ **Weather Integration**: Get real-time weather information for any city using OpenWeather API
+- 📚 **RAG Pipeline**: Ask questions about uploaded PDF documents using retrieval-augmented generation
 - 🔄 **LangGraph Workflow**: Intelligent routing between weather and RAG based on query type
-- 🎯 **Multiple UIs**: Streamlit app, React frontend, and FastAPI backend
-- 🔧 **Modular Design**: Clean, extensible architecture
-- 🐳 **Docker Ready**: Easy deployment with Docker Compose
+- 🎯 **Multiple LLM Support**: Google Gemini and OpenAI integration
+- 🔧 **Modular Design**: Clean, extensible architecture with proper separation of concerns
+- 🧪 **Comprehensive Testing**: Unit and integration tests with pytest
+- 📊 **LangSmith Integration**: Optional tracing and monitoring capabilities
 - 🚀 **Production Ready**: FastAPI backend with CORS, React frontend with TypeScript
 
-## Architecture
+## 🏗️ Architecture
 
-The system uses LangGraph to create a workflow that intelligently routes queries:
+The system uses LangGraph to create an intelligent workflow that routes queries based on content analysis:
 
 ```
 START → Decision Node → [Weather Node | RAG Node] → END
 ```
 
+### Core Components
+
 - **Decision Node**: Analyzes queries to determine if they're weather-related or document-related
-- **Weather Node**: Handles weather queries using OpenWeather API
+- **Weather Node**: Handles weather queries using OpenWeather API with LLM enhancement
 - **RAG Node**: Processes document questions using retrieval-augmented generation
+- **Vector Store**: FAISS-based document storage with sentence-transformers embeddings
+- **LLM Wrappers**: Unified interface for multiple LLM providers (Gemini, OpenAI)
 
-## Installation
+## 📋 Prerequisites
 
-### Prerequisites
+- **Python 3.13.5** (recommended) or Python 3.8+
+- pip or poetry package manager
+- API keys for:
+  - OpenWeather API (for weather functionality)
+  - Google Gemini API OR OpenAI API (for LLM functionality)
+  - LangSmith API (optional, for tracing)
 
-- Python 3.8+
-- pip or poetry
+## 🚀 Installation & Setup
 
-### Setup
+### 1. Clone the Repository
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd ai-engineer-assignment
-   ```
+```bash
+git clone <repository-url>
+cd ai-engineer-assignment
+```
 
-2. **Install dependencies**
-   ```bash
-   pip install -e .
-   # or for development
-   pip install -e ".[dev]"
-   ```
+### 2. Create Virtual Environment (Recommended)
 
-3. **Set up environment variables**
-   ```bash
-   cp env.example .env
-   # Edit .env with your API keys
-   ```
+```bash
+# Using venv
+python3.13 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-4. **Required API Keys**
-   - OpenWeather API key (for weather functionality)
-   - Gemini API key OR OpenAI API key (for LLM functionality)
+# Or using conda
+conda create -n ai-assignment python=3.13.5
+conda activate ai-assignment
+```
 
-## Configuration
+### 3. Install Dependencies
 
-Create a `.env` file with the following variables:
+```bash
+# Install core dependencies
+pip install -e .
+
+# Or install with development dependencies
+pip install -e ".[dev]"
+
+# Alternative: Install from requirements.txt
+pip install -r requirements.txt
+```
+
+### 4. Environment Configuration
+
+Create a `.env` file in the project root:
+
+```bash
+cp env.example .env
+```
+
+Edit `.env` with your API keys:
 
 ```env
-# Weather API
+# Weather API (Required)
 OPENWEATHER_API_KEY=your_openweather_api_key_here
 
-# LLM Configuration
+# LLM Configuration (Required - choose one)
 LLM_PROVIDER=gemini  # Options: "gemini" or "openai"
 
-# Gemini Configuration
+# Gemini Configuration (if using Gemini)
 GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_MODEL=gemini-2.5-flash
 
 # OpenAI Configuration (if using OpenAI)
 OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_MODEL=gpt-4o-mini
+
+# Optional: LangSmith Integration
+LANGCHAIN_API_KEY=your_langsmith_api_key_here
+LANGCHAIN_PROJECT=ai-engineer-assignment
 
 # File Paths
 PDF_PATH=data/sample.pdf
@@ -83,134 +109,129 @@ FAISS_INDEX_PATH=faiss_index
 EMBEDDING_MODEL=all-MiniLM-L6-v2
 ```
 
-## Usage
+### 5. API Key Setup
 
-### Option 1: Docker Compose (Recommended)
+#### OpenWeather API
+1. Visit [OpenWeather API](https://openweathermap.org/api)
+2. Sign up for a free account
+3. Get your API key from the dashboard
+
+#### Google Gemini API
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Add it to your `.env` file
+
+#### OpenAI API (Alternative)
+1. Visit [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Create a new API key
+3. Add it to your `.env` file
+
+## 🎯 Usage
+
+### Option 1: Streamlit App (Quick Start)
 
 ```bash
-# Start all services
-docker-compose up --build
-
-# Access the application
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:8000
-# API Docs: http://localhost:8000/docs
-```
-
-### Option 2: Development Mode
-
-#### Start Backend and Frontend Together
-```bash
-# Windows
-scripts/start-dev.bat
-
-# Linux/Mac
-chmod +x scripts/start-dev.sh
-./scripts/start-dev.sh
-```
-
-#### Start Services Individually
-
-**Backend (FastAPI):**
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-**Frontend (React):**
-```bash
-cd frontend
-npm install
-npm start
-```
-
-**Streamlit App (Alternative UI):**
-```bash
+# Run the Streamlit application
 streamlit run src/app.py
+```
+
+Access the app at `http://localhost:8501`
+
+### Option 2: Development Mode with Make
+
+```bash
+# Set up development environment
+make setup
+
+# Run the Streamlit app
+make run
+
+# Run tests
+make test
+
+# Run tests with coverage
+make test-cov
+
+# Format code
+make format
+
+# Run all quality checks
+make check
 ```
 
 ### Option 3: Using the API Programmatically
 
 ```python
-import requests
+import sys
+import os
+sys.path.append('src')
 
-# Query the AI pipeline
-response = requests.post("http://localhost:8000/api/v1/query/query", 
-                        json={"query": "What's the weather in London?"})
-print(response.json())
+from src.langgraph_engine import LangGraphEngine
+from src.llm_wrappers import get_llm
+from src.rag_chain import build_rag_chain
+from src.vectorstore import load_faiss
+from src.embeddings import get_embeddings
 
-# Weather-specific endpoint
-response = requests.post("http://localhost:8000/api/v1/weather/weather",
-                        json={"city": "London"})
-print(response.json())
+# Initialize components
+llm = get_llm()
+embeddings = get_embeddings()
+vectorstore = load_faiss("faiss_index", embeddings)
+rag_chain = build_rag_chain(llm, vectorstore)
 
-# RAG-specific endpoint
-response = requests.post("http://localhost:8000/api/v1/rag/rag",
-                        json={"question": "What is RAG?"})
-print(response.json())
+# Create engine
+engine = LangGraphEngine(
+    rag_chain=rag_chain, 
+    llm=llm, 
+    openweather_api_key="your_api_key"
+)
+
+# Query the system
+response = engine.handle("What's the weather in London?")
+print(response)
+
+response = engine.handle("What is RAG?")
+print(response)
 ```
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 ai-engineer-assignment/
-├── backend/               # FastAPI backend
-│   ├── app/
-│   │   ├── api/          # API endpoints
-│   │   │   ├── endpoints/
-│   │   │   │   ├── health.py
-│   │   │   │   ├── query.py
-│   │   │   │   ├── weather.py
-│   │   │   │   └── rag.py
-│   │   │   └── __init__.py
-│   │   ├── core/         # Core functionality
-│   │   │   ├── config.py
-│   │   │   ├── cors.py
-│   │   │   ├── dependencies.py
-│   │   │   └── models.py
-│   │   ├── main.py       # FastAPI app
-│   │   └── __init__.py
-│   ├── Dockerfile
-│   └── requirements.txt
-├── frontend/              # React frontend
-│   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── hooks/        # Custom hooks
-│   │   ├── services/     # API services
-│   │   ├── types/        # TypeScript types
-│   │   ├── App.tsx
-│   │   └── index.tsx
-│   ├── public/
-│   ├── Dockerfile
-│   ├── nginx.conf
-│   └── package.json
-├── src/                   # Original source code (Streamlit)
+├── src/                     # Core source code
 │   ├── __init__.py
-│   ├── app.py            # Streamlit application
-│   ├── config.py
-│   ├── data_loader.py
-│   ├── embeddings.py
-│   ├── langgraph_engine.py
-│   ├── llm_wrappers.py
-│   ├── rag_chain.py
-│   ├── vectorstore.py
-│   └── weather.py
-├── tests/                 # Test suite
-├── docs/                  # Documentation
-├── scripts/               # Development scripts
-├── data/                  # Data files
-├── faiss_index/           # FAISS index storage
-├── docker-compose.yml     # Docker orchestration
-├── nginx.conf            # Nginx configuration
-├── .gitignore
-├── env.example
-├── pyproject.toml
-├── requirements.txt
-└── README.md
+│   ├── app.py              # Streamlit application
+│   ├── config.py           # Configuration management
+│   ├── data_loader.py      # PDF loading and text splitting
+│   ├── embeddings.py       # Embedding model management
+│   ├── langgraph_engine.py # LangGraph workflow orchestration
+│   ├── llm_wrappers.py     # LLM provider abstractions
+│   ├── rag_chain.py        # RAG chain implementation
+│   ├── vectorstore.py      # FAISS vector store operations
+│   └── weather.py          # Weather API integration
+├── tests/                   # Test suite
+│   ├── __init__.py
+│   ├── conftest.py         # Pytest configuration and fixtures
+│   ├── test_langgraph.py   # LangGraph workflow tests
+│   ├── test_rag.py         # RAG functionality tests
+│   ├── test_vectorstore.py # Vector store tests
+│   └── test_weather.py     # Weather API tests
+├── data/                    # Data files
+│   └── sample.pdf          # Sample PDF for RAG
+├── faiss_index/            # FAISS index storage
+│   ├── index.faiss
+│   └── index.pkl
+├── scripts/                 # Development scripts
+│   ├── start-dev.sh        # Linux/Mac development startup
+│   └── start-dev.bat       # Windows development startup
+├── pyproject.toml          # Project configuration
+├── requirements.txt         # Python dependencies
+├── Makefile                # Development commands
+├── nginx.conf              # Nginx configuration
+├── .env.example            # Environment template
+└── README.md               # This file
 ```
 
-## Development
+## 🔧 Development
 
 ### Running Tests
 
@@ -219,12 +240,15 @@ ai-engineer-assignment/
 pytest
 
 # Run with coverage
-pytest --cov=src
+pytest --cov=src --cov-report=html
 
 # Run specific test categories
 pytest -m unit          # Unit tests only
 pytest -m integration   # Integration tests only
 pytest -m "not slow"    # Skip slow tests
+
+# Run specific test file
+pytest tests/test_weather.py
 ```
 
 ### Code Quality
@@ -239,63 +263,188 @@ flake8 src tests
 mypy src
 
 # Run all quality checks
-pre-commit run --all-files
+make check
 ```
 
 ### Adding New Features
 
-1. **New API Endpoints**: Add new endpoints in `backend/app/api/endpoints/`
-2. **New React Components**: Add components in `frontend/src/components/`
-3. **New LangGraph Nodes**: Add new processing nodes to `src/langgraph_engine.py`
-4. **New Data Sources**: Extend the data loading in `src/data_loader.py`
-5. **New LLM Providers**: Add wrappers in `src/llm_wrappers.py`
+1. **New LLM Providers**: Add wrappers in `src/llm_wrappers.py`
+2. **New Data Sources**: Extend the data loading in `src/data_loader.py`
+3. **New LangGraph Nodes**: Add processing nodes to `src/langgraph_engine.py`
+4. **New Vector Stores**: Extend vector store operations in `src/vectorstore.py`
 
-## API Reference
+## 🧪 Testing Strategy
 
-### Backend API Endpoints
+The project includes comprehensive testing:
 
-- `POST /api/v1/query/query` - Main query endpoint (weather or RAG)
-- `POST /api/v1/weather/weather` - Weather-specific endpoint
-- `GET /api/v1/weather/weather/{city}` - Get weather by city
-- `POST /api/v1/rag/rag` - RAG-specific endpoint
-- `GET /api/v1/health/health` - Health check
+- **Unit Tests**: Test individual components in isolation
+- **Integration Tests**: Test component interactions
+- **Mocking**: External API calls are mocked for reliable testing
+- **Fixtures**: Shared test data and configurations
 
-### Core Classes
+### Test Categories
 
-- `LangGraphEngine`: Main workflow orchestrator
-- `Settings`: Configuration management
-- `GraphState`: LangGraph state definition
+- `@pytest.mark.unit`: Fast, isolated unit tests
+- `@pytest.mark.integration`: Tests requiring external dependencies
+- `@pytest.mark.slow`: Tests that take longer to run
 
-### Key Functions
+## 🔍 Implementation Details
 
-- `build_rag_chain()`: Creates RAG processing chain
-- `get_weather_for_city()`: Fetches weather data
-- `build_faiss_from_docs()`: Creates vector store from documents
+### LangGraph Workflow
 
-## Contributing
+The core intelligence lies in the LangGraph workflow:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
+```python
+class GraphState(TypedDict):
+    query: str
+    response: str
+    city: str
+    weather_data: Dict[str, Any]
+    is_weather_query: bool
+    rag_chain: Any
+    llm: Any
+    openweather_api_key: str
+```
 
-## License
+**Decision Logic**: Uses keyword matching to classify queries:
+- Weather keywords: `{"weather", "temperature", "rain", "forecast", "sunny", "wind", "windy", "snow", "cloud"}`
+- City extraction: Regex patterns to extract city names from queries
 
-MIT License - see LICENSE file for details.
+### RAG Implementation
 
-## Troubleshooting
+- **Document Processing**: PDFs are loaded and split using `RecursiveCharacterTextSplitter`
+- **Embeddings**: Uses `sentence-transformers` with `all-MiniLM-L6-v2` model
+- **Vector Store**: FAISS for efficient similarity search
+- **Retrieval**: Top-k document retrieval with configurable chunk size
+
+### Weather Integration
+
+- **API**: OpenWeather API for real-time weather data
+- **Enhancement**: LLM-generated summaries for natural language responses
+- **Error Handling**: Comprehensive error handling with user-friendly messages
+
+### Configuration Management
+
+Uses `pydantic-settings` for type-safe configuration:
+- Environment variable loading
+- Default values
+- Validation
+- Type hints
+
+## 🚨 Troubleshooting
 
 ### Common Issues
 
-1. **Import Errors**: Ensure you're running from the project root and have installed the package
-2. **API Key Errors**: Verify your `.env` file has the correct API keys
-3. **PDF Loading Issues**: Ensure the PDF file exists and is not corrupted
-4. **Memory Issues**: For large PDFs, consider using a smaller embedding model
+1. **Import Errors**
+   ```bash
+   # Ensure you're in the project root and package is installed
+   pip install -e .
+   ```
 
-### Getting Help
+2. **API Key Errors**
+   ```bash
+   # Verify your .env file has correct API keys
+   cat .env
+   ```
 
-- Check the test files for usage examples
-- Review the configuration in `config.py`
-- Ensure all dependencies are installed correctly
+3. **PDF Loading Issues**
+   ```bash
+   # Ensure PDF exists and is not corrupted
+   ls -la data/sample.pdf
+   ```
+
+4. **Memory Issues**
+   ```bash
+   # For large PDFs, consider using a smaller embedding model
+   # Update EMBEDDING_MODEL in .env
+   ```
+
+5. **LangGraph Import Errors**
+   ```bash
+   # Ensure LangGraph is installed
+   pip install langgraph>=0.0.40
+   ```
+
+### Debug Mode
+
+Enable debug logging:
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
+
+## 📊 Performance Considerations
+
+- **Embedding Model**: `all-MiniLM-L6-v2` provides good balance of speed and quality
+- **Chunk Size**: Default 1000 characters with 200 overlap for optimal retrieval
+- **Top-K Retrieval**: Default 4 documents for context
+- **Caching**: Streamlit caches the pipeline initialization
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass: `make test`
+6. Run quality checks: `make check`
+7. Commit your changes: `git commit -m "Add feature"`
+8. Push to the branch: `git push origin feature-name`
+9. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- [LangChain](https://langchain.com/) for the RAG framework
+- [LangGraph](https://github.com/langchain-ai/langgraph) for workflow orchestration
+- [OpenWeather](https://openweathermap.org/) for weather data
+- [Google Gemini](https://ai.google.dev/) and [OpenAI](https://openai.com/) for LLM capabilities
+- [FAISS](https://github.com/facebookresearch/faiss) for vector similarity search
+- [Streamlit](https://streamlit.io/) for the web interface
+
+
+## 📡 LangSmith Integration Evidence
+
+The project is fully integrated with **LangSmith** for tracing and observability.
+
+### Screenshot 1 – Streamlit App Sidebar Confirmation
+Shows that **LangSmith tracing is active** and the project is set to `ai-engineer-assignment`.
+
+![LangSmith Sidebar Active](docs/screenshots/sidebar.png)
+
+*Caption:*  
+✅ *Sidebar showing successful LangSmith activation in the running Streamlit app.*
+
+---
+
+### Screenshot 2 – LangSmith Project Dashboard
+Displays the `ai-engineer-assignment` project in LangSmith with recent runs, latency metrics, and tracing activity.
+
+![LangSmith Project Dashboard](docs/screenshots/dashboard.png)
+
+*Caption:*  
+📊 *LangSmith dashboard with project `ai-engineer-assignment` automatically created and populated with traces.*
+
+---
+
+### Screenshot 3 – Individual Run Trace
+Detailed view of one run inside LangSmith, showing the **input query, intermediate steps, and LLM output**.
+
+![LangSmith Run Trace](docs/screenshots/run-trace-1.png)
+
+![LangSmith Run Trace](docs/screenshots/run-trace-2.png)
+
+*Caption:*  
+🔍 *Example of a single trace in LangSmith, demonstrating end-to-end observability of the pipeline.*
+
+## Unit Test Results
+
+The project includes comprehensive unit tests.  
+Below is a screenshot showing all tests passing:
+
+![Unit Test Results](docs/screenshots/unit-test-results.png)
+

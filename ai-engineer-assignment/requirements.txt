@@ -19,6 +19,8 @@ pydantic-settings>=2.0.0
 langchain-google-genai
 google-generativeai
 
+langsmith
+
 # Optional dependencies (uncomment as needed)
 # google-cloud-aiplatform>=1.30.0   # for Gemini (Vertex AI) integration
 # langsmith>=0.2.0                  # for LangSmith integration

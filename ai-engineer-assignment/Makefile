@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test test-cov lint format clean run docs
+.PHONY: help install install-dev test test-cov test-report test-unit test-integration lint format clean run docs setup check ci
 
 help: ## Show this help message
 	@echo "Available commands:"
@@ -10,17 +10,20 @@ install: ## Install the package
 install-dev: ## Install the package with development dependencies
 	pip install -e ".[dev]"
 
-test: ## Run tests
-	pytest
+test: ## Run all tests
+	pytest -v
 
 test-cov: ## Run tests with coverage
-	pytest --cov=src --cov-report=html --cov-report=term-missing
+	pytest -v --cov=src --cov-report=term-missing
+
+test-report: ## Run tests and export results (JUnit XML)
+	pytest -v --junitxml=reports/test-results.xml
 
 test-unit: ## Run unit tests only
-	pytest -m unit
+	pytest -m unit -v
 
 test-integration: ## Run integration tests only
-	pytest -m integration
+	pytest -m integration -v
 
 lint: ## Run linting
 	flake8 src tests
@@ -35,13 +38,7 @@ format-check: ## Check code formatting
 	isort --check-only src tests
 
 clean: ## Clean up build artifacts
-	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg-info/
-	rm -rf .pytest_cache/
-	rm -rf .coverage
-	rm -rf htmlcov/
-	rm -rf .mypy_cache/
+	rm -rf build/ dist/ *.egg-info/ .pytest_cache/ .coverage htmlcov/ .mypy_cache/
 	find . -type d -name __pycache__ -delete
 	find . -type f -name "*.pyc" -delete
 

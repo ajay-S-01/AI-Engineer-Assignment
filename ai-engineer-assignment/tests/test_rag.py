@@ -1,4 +1,3 @@
-# tests/test_rag.py
 from langchain.schema import Document
 from src.embeddings import get_embeddings
 from src.vectorstore import build_faiss_from_docs

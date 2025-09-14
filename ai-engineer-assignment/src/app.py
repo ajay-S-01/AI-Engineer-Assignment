@@ -1,7 +1,7 @@
-# src/app.py
 import streamlit as st
 import sys
 import os
+
 
 # Add the parent directory to Python path so we can import from src
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -14,6 +14,18 @@ from src.llm_wrappers import get_llm
 from src.rag_chain import build_rag_chain
 from src.langgraph_engine import LangGraphEngine
 from pypdf.errors import EmptyFileError
+from langsmith import traceable
+import os
+
+
+
+if settings.LANGCHAIN_API_KEY:
+    st.sidebar.success("LangSmith tracing active ✅")
+    st.sidebar.write(f"Project: {settings.LANGCHAIN_PROJECT}")
+else:
+    st.sidebar.warning("LangSmith tracing not detected ⚠️")
+print("LangSmith Project:", os.getenv("LANGCHAIN_PROJECT"))
+print("LangSmith API Key:", os.getenv("LANGCHAIN_API_KEY")[:10] + "...")
 
 # --- Page setup ---
 st.set_page_config(page_title="AI Pipeline Demo", layout="wide")
@@ -81,6 +93,10 @@ def init_pipeline():
 
 engine = init_pipeline()
 
+@traceable  # logs the function call + input/output
+def handle_query(query: str):
+    return engine.handle(query)
+
 # --- Sidebar info ---
 with st.sidebar:
     st.header("Settings")
@@ -113,7 +129,7 @@ if send:
     else:
         with st.spinner("Processing..."):
             try:
-                resp = engine.handle(query)
+                resp = handle_query(query)
             except Exception as e:
                 resp = f"Error: {e}"
         st.session_state.history.append((query, resp))

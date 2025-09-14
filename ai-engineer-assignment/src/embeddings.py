@@ -1,4 +1,3 @@
-# src/embeddings.py
 from langchain.embeddings import HuggingFaceEmbeddings
 from src.config import settings
 
